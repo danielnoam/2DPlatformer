@@ -7,7 +7,7 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using VInspector;
 
-
+[DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }

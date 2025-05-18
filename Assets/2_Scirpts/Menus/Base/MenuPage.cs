@@ -137,11 +137,20 @@ public class MenuPage : MonoBehaviour
         
         foreach (Selectable selectable in selectables)
         {
-            if (!selectable.gameObject.activeSelf) continue;
+            if (!selectable.gameObject.activeSelf || !selectable) continue;
             
-            selectable.transform.localScale = _selectableOriginalScales[selectable];
-            selectable.transform.localRotation = Quaternion.Euler(_selectableOriginalRotations[selectable]);
-            selectable.transform.localPosition = _selectableOriginalPositions[selectable];
+
+            // Reset all original information
+            
+            if (_selectableOriginalState.TryGetValue(selectable, out bool originalState))
+                selectable.interactable = originalState;
+            if (_selectableOriginalScales.TryGetValue(selectable, out Vector3 originalScale))
+                selectable.transform.localScale = originalScale;
+            if (_selectableOriginalRotations.TryGetValue(selectable, out Vector3 originalRotation))
+                selectable.transform.localRotation = Quaternion.Euler(originalRotation);
+            if (_selectableOriginalPositions.TryGetValue(selectable, out Vector3 originalPosition))
+                selectable.transform.localPosition = originalPosition;
+            
             selectable.interactable = _selectableOriginalState[selectable];
 
             // Just resetting the position bugs the selectables that are in a layout group
