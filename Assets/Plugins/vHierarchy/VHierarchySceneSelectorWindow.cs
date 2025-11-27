@@ -867,6 +867,7 @@ namespace VHierarchy
 
                 allEntries = AssetDatabase.FindAssets("t:scene")
                                           .Select(r => new SceneEntry() { scenePath = r.ToPath() })
+                                          .Where(r => !r.sceneName.StartsWith("~"))
                                           .ToList();
 
                 allEntries.SortBy(r => r.scenePath.GetFilename());

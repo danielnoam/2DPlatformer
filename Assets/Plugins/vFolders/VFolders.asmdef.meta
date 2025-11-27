@@ -9,6 +9,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 255470
   packageName: vFolders 2
-  packageVersion: 2.1.4
-  assetPath: Assets/vFolders/VFolders.asmdef
-  uploadId: 716826
+  packageVersion: 2.1.9
+  assetPath: Assets/Plugins/vFolders/VFolders.asmdef
+  uploadId: 796868

@@ -23,7 +23,9 @@ namespace VHierarchy
 
         void OnGUI()
         {
+            if (!component) component = EditorUtility.InstanceIDToObject(componentIid) as Component;
             if (!component) { Close(); return; }
+
             if (!editor) Init(component);
 
 
@@ -226,6 +228,15 @@ namespace VHierarchy
                     ResetGUIEnabled();
 
                 }
+                void rightClick()
+                {
+                    if (!curEvent.isMouseDown) return;
+                    if (curEvent.mouseButton != 1) return;
+                    if (!headerRect.IsHovered()) return;
+
+                    typeof(EditorUtility).InvokeMethod("DisplayObjectContextMenu", Rect.zero.SetPos(curEvent.mousePosition), component, 0);
+
+                }
 
                 startDragging();
                 updateDragging();
@@ -238,6 +249,7 @@ namespace VHierarchy
                 nameCurtain();
                 pinButton();
                 closeButton();
+                rightClick();
 
             }
             void body()
@@ -263,7 +275,7 @@ namespace VHierarchy
             }
             void outline()
             {
-                if (Application.platform == RuntimePlatform.OSXEditor) return;
+                // if (Application.platform == RuntimePlatform.OSXEditor) return;
 
                 position.SetPos(0, 0).DrawOutline(Greyscale(.1f));
 
@@ -333,6 +345,7 @@ namespace VHierarchy
             }
             void closeOnEscape()
             {
+                if (isPinned) return;
                 if (!curEvent.isKeyDown) return;
                 if (curEvent.keyCode != KeyCode.Escape) return;
 
@@ -531,6 +544,7 @@ namespace VHierarchy
                 editor.DestroyImmediate();
 
             this.component = component;
+            this.componentIid = component.GetInstanceID();
             this.editor = Editor.CreateEditor(component);
 
         }
@@ -549,6 +563,8 @@ namespace VHierarchy
         public Component component;
         public Editor editor;
 
+        public int componentIid;
+
 
 
 
@@ -557,7 +573,8 @@ namespace VHierarchy
         {
             floatingInstance = ScriptableObject.CreateInstance<VHierarchyComponentWindow>();
 
-            floatingInstance.ShowPopup();
+            // floatingInstance.ShowPopup();
+            typeof(EditorWindow).GetMethod("ShowWithMode", maxBindingFlags).Invoke(floatingInstance, new object[] { 3 }); // show in NoShadow mode
 
 
             floatingInstance.maxHeight = EditorGUIUtility.GetMainWindowPosition().height * .7f;

@@ -24,6 +24,7 @@ namespace VInspector
 
         void OnGUI()
         {
+            if (!component) component = EditorUtility.InstanceIDToObject(componentIid) as Component;
             if (!component) { Close(); return; }
             if (!editor) { Init(component); skipHeightUpdate = true; }
 
@@ -164,23 +165,13 @@ namespace VInspector
                     EditorGUIUtility.ExitGUI();
 
                 }
-                void escHint()
+                void rightClick()
                 {
-                    if (!closeButtonRect.IsHovered()) return;
-                    if (EditorWindow.focusedWindow != this) return;
+                    if (!curEvent.isMouseDown) return;
+                    if (curEvent.mouseButton != 1) return;
+                    if (!headerRect.IsHovered()) return;
 
-                    var textRect = headerRect.SetWidthFromRight(42).MoveY(-.5f);
-                    var fontSize = 11;
-                    var color = Greyscale(.65f);
-
-
-                    SetLabelFontSize(fontSize);
-                    SetGUIColor(color);
-
-                    GUI.Label(textRect, "Esc");
-
-                    ResetGUIColor();
-                    ResetLabelStyle();
+                    typeof(EditorUtility).InvokeMethod("DisplayObjectContextMenu", Rect.zero.SetPos(curEvent.mousePosition), component, 0);
 
                 }
 
@@ -194,7 +185,7 @@ namespace VInspector
                 name();
                 nameCurtain();
                 closeButton();
-                escHint();
+                rightClick();
 
             }
             void body_imgui()
@@ -260,16 +251,6 @@ namespace VInspector
                 targetHeight = lastElement.contentRect.yMax + 33;
 
                 position = position.SetHeight(targetHeight);
-
-            }
-            void closeOnEscape()
-            {
-                if (!curEvent.isKeyDown) return;
-                if (curEvent.keyCode != KeyCode.Escape) return;
-
-                Close();
-
-                EditorGUIUtility.ExitGUI();
 
             }
 
@@ -400,7 +381,6 @@ namespace VInspector
             Space(7);
 
             updateHeight_uitk();
-            closeOnEscape();
 
 
             if (isDragged)
@@ -445,6 +425,8 @@ namespace VInspector
             this.component = component;
             this.editor = Editor.CreateEditor(component);
 
+            this.componentIid = component.GetInstanceID();
+
             hasCustomUITKEditor = editor.GetType().GetMethod("CreateInspectorGUI", maxBindingFlags) != null;
 
             if (!instances.Contains(this))
@@ -474,6 +456,8 @@ namespace VInspector
         public Component component;
         public Editor editor;
         public InspectorElement inspectorElement;
+
+        public int componentIid;
 
         bool useUITK => editor.target is MonoBehaviour && (HasUITKOnlyDrawers(editor.serializedObject) || hasCustomUITKEditor);
         bool hasCustomUITKEditor;

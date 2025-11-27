@@ -18,6 +18,15 @@ using static VHierarchy.Libs.VGUI;
 using static VHierarchy.VHierarchyData;
 using static VHierarchy.VHierarchyCache;
 
+#if UNITY_6000_3_OR_NEWER
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<UnityEngine.EntityId>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
+#elif UNITY_6000_2_OR_NEWER
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+#endif
+
+
 
 
 namespace VHierarchy
@@ -105,7 +114,7 @@ namespace VHierarchy
 
 
 
-                var scrollPos = window.GetMemberValue("m_SceneHierarchy").GetMemberValue<UnityEditor.IMGUI.Controls.TreeViewState>("m_TreeViewState").scrollPos.y;
+                var scrollPos = window.GetMemberValue("m_SceneHierarchy").GetMemberValue<TreeViewState>("m_TreeViewState").scrollPos.y;
 
                 if (scrollPos <= minScrollPos) return;
 
@@ -887,6 +896,7 @@ namespace VHierarchy
                 {
                     if (sceneIdMap == null) return;
                     if (currentSceneGuid != originalSceneGuid) return;
+                    if (!go.scene.isLoaded) return; // can happen when setting icons via api
 
 
                     var curInstanceIdsHash = go.scene.GetRootGameObjects().FirstOrDefault()?.GetInstanceID() ?? 0;
@@ -1312,6 +1322,15 @@ namespace VHierarchy
 
             }
 
+            foreach (var bookmark in data.bookmarks.ToList().Where(r => r.globalId.guid == originalSceneGuid))
+            {
+                var duplicatedGlobalId = new GlobalID(bookmark.globalId.ToString().ToString().Replace(originalSceneGuid, duplicatedSceneGuid));
+                var duplicatedBookmark = new Bookmark(null) { globalId = duplicatedGlobalId };
+
+                data.bookmarks.Add(duplicatedBookmark);
+
+            }
+
             data.Dirty();
 
         }
@@ -1721,25 +1740,25 @@ namespace VHierarchy
                 catch { }
 
             }
-            void removeDeletedBookmarks()
-            {
-                if (!data) return;
+            // void removeDeletedBookmarks()
+            // {
+            //     if (!data) return;
 
 
-                var toRemove = data.bookmarks.Where(r => r.isDeleted);
+            //     var toRemove = data.bookmarks.Where(r => r.isDeleted);
 
-                if (!toRemove.Any()) return;
-
-
-                foreach (var r in toRemove.ToList())
-                    data.bookmarks.Remove(r);
-
-                data.Dirty();
+            //     if (!toRemove.Any()) return;
 
 
-                // delayed to give bookmarks a chance to load in update
+            //     foreach (var r in toRemove.ToList())
+            //         data.bookmarks.Remove(r);
 
-            }
+            //     data.Dirty();
+
+
+            //     // delayed to give bookmarks a chance to load in update
+
+            // }
 
 
             subscribe();
@@ -1748,7 +1767,7 @@ namespace VHierarchy
             loadDataAndPaletteDelayed();
             migrateDataFromV1();
 
-            EditorApplication.delayCall += () => removeDeletedBookmarks();
+            // EditorApplication.delayCall += () => removeDeletedBookmarks();
 
             OnDomainReloaded();
 
@@ -1778,7 +1797,24 @@ namespace VHierarchy
 
 
 
-        public const string version = "2.1.0";
+
+#if UNITY_6000_3_OR_NEWER
+        public static EntityId ToIdType(this int id) => id;
+        public static List<int> ToInts(this List<EntityId> ids) => ids.Select(r => (int)r).ToList();
+        public static List<int> GetIdList(this object o, string listName) => o.GetMemberValue<List<EntityId>>(listName)?.ToInts();
+#else
+        public static int ToIdType(this int id) => id;
+        public static List<int> ToInts(this List<int> ids) => ids;
+        public static List<int> GetIdList(this object o, string listName) => o.GetMemberValue<List<int>>(listName);
+#endif
+
+
+
+
+
+
+
+        public const string version = "2.1.5";
 
     }
 

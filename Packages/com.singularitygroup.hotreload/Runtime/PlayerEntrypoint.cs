@@ -1,4 +1,3 @@
-#if ENABLE_MONO && (DEVELOPMENT_BUILD || UNITY_EDITOR)
 #if UNITY_ANDROID && !UNITY_EDITOR
 #define MOBILE_ANDROID
 #endif
@@ -65,6 +64,8 @@ namespace SingularityGroup.HotReload {
                 Log.Error($"Uknown issue happened when reading build info.");
                 return;
             }
+
+            CodePatcher.I.debuggerCompatibilityEnabled = true;
 
             try {
                 var customIp = PlayerPrefs.GetString("HotReloadRuntime.CustomIP", "");
@@ -156,4 +157,3 @@ namespace SingularityGroup.HotReload {
         }
     }
 }
-#endif

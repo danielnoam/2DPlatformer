@@ -12,7 +12,7 @@ MonoImporter:
 AssetOrigin:
   serializedVersion: 1
   productId: 253397
-  packageName: vHierarchy 2.1
-  packageVersion: 1.0
-  assetPath: Assets/vHierarchy/VHierarchyPalette.cs
-  uploadId: 722515
+  packageName: vHierarchy 2
+  packageVersion: 2.1.5
+  assetPath: Assets/Plugins/vHierarchy/VHierarchyPalette.cs
+  uploadId: 796866

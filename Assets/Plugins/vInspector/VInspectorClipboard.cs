@@ -194,6 +194,10 @@ namespace VInspector
         }
         public static void ApplyComponentData(ComponentData componentData, Component targetComponent)
         {
+            foreach (var key in componentData.serializedPropertyValues_byPath.Keys.ToList())
+                if (componentData.serializedPropertyValues_byPath[key] is Object unityObject && !unityObject) // sometimes object references become null after playmode in unity 6, so we have to restore them by instanceId
+                    componentData.serializedPropertyValues_byPath[key] = EditorUtility.InstanceIDToObject(unityObject.GetInstanceID());
+
             foreach (var kvp in componentData.serializedPropertyValues_byPath)
             {
                 var so = new SerializedObject(targetComponent);

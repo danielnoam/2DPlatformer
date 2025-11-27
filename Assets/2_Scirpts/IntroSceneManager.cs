@@ -82,7 +82,7 @@ public class IntroSceneManager : MonoBehaviour
         Vector2 screenSize = new Vector2(Screen.width, Screen.height);
         float growSize = Mathf.Max(screenSize.x, screenSize.y);
         
-        _sequence = Sequence.Create(cycles: 1, cycleMode: CycleMode.Restart, sequenceEase:Ease.Linear, useUnscaledTime: false, useFixedUpdate: false)
+        _sequence = Sequence.Create(cycles: 1, cycleMode: CycleMode.Restart, sequenceEase:Ease.Linear, useUnscaledTime: false, updateType: false)
             .Group(Tween.Alpha(player,startValue:1, 0, duration))
             .Group(Tween.EulerAngles(player.transform, startValue: Vector3.zero, endValue: new Vector3(0, 0, -360f), duration))
             .Group(Tween.Scale(player.transform, startValue: 0.1f,endValue: growSize, duration))
